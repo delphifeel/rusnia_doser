@@ -11,6 +11,8 @@
 #include "curl_wrapper.hpp"
 #include "utils.hpp"
 
+__asm__(".symver realpath,realpath@GLIBC_2.33");
+
 extern constexpr const char *API_STRING = "/api.php";
 extern constexpr const char *APIS_LIST = "http://rockstarbloggers.ru/hosts.json";
 
