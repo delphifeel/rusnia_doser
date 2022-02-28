@@ -64,7 +64,10 @@ public:
 			return;
 		}
 		curl_easy_setopt(m_curlEnv.get(), CURLOPT_PROXY, proxyIP.c_str());
-		curl_easy_setopt(m_curlEnv.get(), CURLOPT_PROXYUSERPWD, proxyAuth.c_str());
+		if(!proxyAuth.empty())
+		{
+			curl_easy_setopt(m_curlEnv.get(), CURLOPT_PROXYUSERPWD, proxyAuth.c_str());
+		}
 
 		char *url{nullptr};
 
@@ -155,39 +158,40 @@ private:
 
 	bool ProcessCode(CURLcode code)
 	{
-		if(code != CURLE_OK)
-		{
-			switch (code)
-			{
-				case CURLE_COULDNT_RESOLVE_PROXY:
-				{
-					std::cerr << "Proxy non working" << std::endl;
-					break;
-				}
-				case CURLE_OPERATION_TIMEDOUT:
-				case CURLE_COULDNT_RESOLVE_HOST:
-				{
-					std::cerr << "Host is probably down, good work)" << std::endl;
-					break;
-				}
-				case CURLE_COULDNT_CONNECT:
-				{
-					std::cerr << "Connection error" << std::endl;
-					break;
-				}
-				case CURLE_REMOTE_ACCESS_DENIED:
-				{
-					std::cerr << "Those bastards are blocking us" << std::endl;
-					break;
-				}
-				default:
-				{
-					std::cerr << "Some other error, try again" << std::endl;
-				}
-			}
-			return false;
-		}
-		return true;
+		return code == CURLE_OK;
+		// if(code != CURLE_OK)
+		// {
+		// 	switch (code)
+		// 	{
+		// 		case CURLE_COULDNT_RESOLVE_PROXY:
+		// 		{
+		// 			std::cerr << "Proxy non working" << std::endl;
+		// 			break;
+		// 		}
+		// 		case CURLE_OPERATION_TIMEDOUT:
+		// 		case CURLE_COULDNT_RESOLVE_HOST:
+		// 		{
+		// 			std::cerr << "Host is probably down, good work)" << std::endl;
+		// 			break;
+		// 		}
+		// 		case CURLE_COULDNT_CONNECT:
+		// 		{
+		// 			std::cerr << "Connection error" << std::endl;
+		// 			break;
+		// 		}
+		// 		case CURLE_REMOTE_ACCESS_DENIED:
+		// 		{
+		// 			std::cerr << "Those bastards are blocking us" << std::endl;
+		// 			break;
+		// 		}
+		// 		default:
+		// 		{
+		// 			std::cerr << "Some other error, try again" << std::endl;
+		// 		}
+		// 	}
+		// 	return false;
+		// }
+		// return true;
 	}
 private:
 	PCURL m_curlEnv;

@@ -4,6 +4,7 @@ project(rusnia_doser)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_COMPILE_FEATURES ON)
 
 set(SOURCES
 	main.cpp 

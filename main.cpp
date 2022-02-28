@@ -64,7 +64,7 @@ int main(int argc, char **argv)
 
 	std::vector<std::thread> pool;
 
-	for(size_t i = 0; i < 100; i++)
+	for(size_t i = 0; i < std::thread::hardware_concurrency(); i++)
 	{
 		pool.push_back(std::thread(Fire, apis, std::ref(g_shouldStop)));
 	}
