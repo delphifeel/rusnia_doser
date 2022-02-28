@@ -1,3 +1,6 @@
 [submodule "curl"]
 	path = curl
 	url = https://github.com/curl/curl
+[submodule "openssl-cmake"]
+	path = openssl-cmake
+	url = https://github.com/janbar/openssl-cmake
